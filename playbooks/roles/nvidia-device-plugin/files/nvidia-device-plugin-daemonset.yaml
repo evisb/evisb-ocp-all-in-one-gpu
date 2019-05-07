@@ -9,7 +9,7 @@ spec:
       labels:
         name: nvidia-device-plugin-ds
     spec:
-      priorityClassName: system-node-critical
+      #priorityClassName: system-node-critical
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
