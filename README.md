@@ -88,4 +88,4 @@ playbooks/gpu-pod/get_url.sh
 get_url.sh will output a route and token.
 
 Use the token to authenticate to route:
-http://<route>/notebooks/caffe2/caffe2/python/tutorials/Multi-GPU_Training.ipynb?token=<token>
+http://[route]/notebooks/caffe2/caffe2/python/tutorials/Multi-GPU_Training.ipynb?token=[token]
