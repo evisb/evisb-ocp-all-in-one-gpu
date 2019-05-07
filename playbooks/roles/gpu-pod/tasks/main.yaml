@@ -1,3 +1,21 @@
+- name: check for nvidia project
+  command: oc get project nvidia
+  ignore_errors: true
+  register: nvidia_project_status
+
+- name: create nvidia project when it didn't already exist
+  command: oc adm new-project nvidia
+  when: nvidia_project_status is failed
+
+- name: check for nvidia device plugin service account
+  command: oc get serviceaccount nvidia-deviceplugin -n nvidia
+  register: deviceplugin_out
+  ignore_errors: true
+
+- name: create serviceaccount for nvidia deviceplugin
+  command: oc create serviceaccount nvidia-deviceplugin -n nvidia
+  when: deviceplugin_out is failed
+
 - name: copy artifacts up
   copy:
     src: "{{ item.src }}"
