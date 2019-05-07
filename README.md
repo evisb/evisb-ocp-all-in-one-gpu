@@ -12,7 +12,8 @@ where `fast_nodes` is the Ansible inventory groupname for your nodes with GPUs
 ### nvidia-container-runtime-hook
 This playbook will install the nvidia-container-runtime-hook which is used to
 mount libraries from the host into a pod whose dockerfile has certain
-environment variables. It is invoked as the `nvidia-driver-install` playbook above.
+environment variables. It is invoked by running following playbook:
+```ansible-playbook -i ./inventory/inventory -e hosts_to_apply="fast_nodes" ./playbooks/nvidia-container-runtime-hook.yaml```
 
 ### nvidia-device-plugin
 This playbook will deploy the NVIDIA device-plugin daemonset, which allows you to schedule GPU pods. 

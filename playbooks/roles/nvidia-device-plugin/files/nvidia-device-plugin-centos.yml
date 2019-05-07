@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
   name: nvidia-device-plugin-daemonset
-  namespace: nvidia 
+  namespace: nvidia-device-plugin 
 spec:
   template:
     metadata:
@@ -15,7 +15,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: nvidia.com/gpu
+              - key: openshift.com/gpu-accelerator 
                 operator: Exists
       serviceAccount: nvidia-deviceplugin
       serivceAccountName: nvidia-deviceplugin
@@ -34,7 +34,7 @@ spec:
           hostPath:
             path: /var/lib/kubelet/device-plugins
       tolerations:
-        - key: "nvidia.com/gpu"
+        - key: "openshift.com/gpu-accelerator "
           operator: "Equal"
           value: "value"
           effect: "NoSchedule"
