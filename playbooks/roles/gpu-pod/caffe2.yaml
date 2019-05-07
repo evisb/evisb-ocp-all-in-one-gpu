@@ -30,7 +30,7 @@ spec:
         privileged: true
       resources:
         limits:
-          nvidia.com/gpu: 2 # requesting 2 GPU
+          nvidia.com/gpu: 1 # requesting 2 GPU
   tolerations:                              
   - key: "nvidia.com/gpu"                 
     operator: "Equal"                     

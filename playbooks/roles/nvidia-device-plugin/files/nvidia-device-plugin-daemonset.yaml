@@ -18,11 +18,11 @@ spec:
               - key: openshift.com/gpu-accelerator 
                 operator: Exists
       serviceAccount: nvidia-deviceplugin
-      serivceAccountName: nvidia-deviceplugin
+      serviceAccountName: nvidia-deviceplugin
       hostNetwork: true
       hostPID: true
       containers:
-      - image: nvidia/k8s-device-plugin:1.11
+      - image: nvidia/k8s-device-plugin:1.11-centos7
         name: nvidia-device-plugin-ctr
         securityContext:
           privileged: true

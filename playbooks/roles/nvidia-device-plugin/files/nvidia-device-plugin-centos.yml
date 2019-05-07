@@ -9,7 +9,7 @@ spec:
       labels:
         name: nvidia-device-plugin-ds
     spec:
-      priorityClassName: system-node-critical
+      #priorityClassName: system-node-critical
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -18,11 +18,11 @@ spec:
               - key: nvidia.com/gpu
                 operator: Exists
       serviceAccount: nvidia-deviceplugin
-      serivceAccountName: nvidia-deviceplugin
+      serviceAccountName: nvidia-deviceplugin
       hostNetwork: true
       hostPID: true
       containers:
-      - image: nvidia/k8s-device-plugin:1.9-centos7
+      - image: nvidia/k8s-device-plugin:1.11-centos7
         name: nvidia-device-plugin-ctr
         securityContext:
           privileged: true
