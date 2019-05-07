@@ -1,0 +1,6 @@
+---
+- name: install nvidia driver
+  hosts: "{{ hosts_to_apply }}"
+  user: root
+  roles:
+    - nvidia-driver-install
