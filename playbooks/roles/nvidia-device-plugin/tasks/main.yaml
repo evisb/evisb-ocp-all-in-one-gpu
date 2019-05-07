@@ -41,7 +41,7 @@
 
 # need to supply an env var called 'gpu_hosts' that refers to the group of hosts/nodes where we should apply the gpu label
 - name: label fast_nodes with nvidia gpu=true
-  command: oc label node {{ hostvars[item].inventory_hostname }} openshift.com/gpu-accelerator=true --overwrite
+  command: oc label node {{ hostvars[item].inventory_hostname }} openshift.com/gpu-accelerator=true nvidia.com/gpu=true --overwrite
   with_items: '{{ groups[gpu_hosts] }}'
 
 - name: copy device plugin daemonset definition to host
