@@ -6,18 +6,18 @@ OpenShift All-in-One cluster with GPU support
 ### nvidia-driver-install
 This role will pull down the latest 3rd party NVIDIA driver and install it.
 After having deployed OCP, run:
-```ansible-playbook -i ./inventory/inventory -e hosts_to_apply="fast_nodes" ./playbooks/nvidia-driver-install.yaml```
+```ansible-playbook -i ./inventory/inventory-oia -e hosts_to_apply="fast_nodes" ./playbooks/nvidia-driver-install.yaml```
 where `fast_nodes` is the Ansible inventory groupname for your nodes with GPUs
 
 ### nvidia-container-runtime-hook
 This playbook will install the nvidia-container-runtime-hook which is used to
 mount libraries from the host into a pod whose dockerfile has certain
 environment variables. It is invoked by running following playbook:
-```ansible-playbook -i ./inventory/inventory -e hosts_to_apply="fast_nodes" ./playbooks/nvidia-container-runtime-hook.yaml```
+```ansible-playbook -i ./inventory/inventory-oia -e hosts_to_apply="fast_nodes" ./playbooks/nvidia-container-runtime-hook.yaml```
 
 ### nvidia-device-plugin
 This playbook will deploy the NVIDIA device-plugin daemonset, which allows you to schedule GPU pods. 
-```ansible-playbook -i ./inventory/inventory -e hosts_to_apply="master_hostname" -e gpu_hosts="fast_nodes" ./playbooks/nvidia-device-plugin.yaml```
+```ansible-playbook -i ./inventory/inventory-oia -e hosts_to_apply="master_hostname" -e gpu_hosts="fast_nodes" ./playbooks/nvidia-device-plugin.yaml```
 
 `master_hostname` is the inventory hostname of one of your masters. `fast_nodes` is the inventory groupname for your nodes with GPUs.
 
