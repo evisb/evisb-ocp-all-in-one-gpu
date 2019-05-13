@@ -3,6 +3,9 @@
 - name: install kernel-devel
   yum: name=kernel-devel-{{ ansible_kernel }} state=present
 
+- name: install vulkan-filesystem
+  yum: name=http://mirror.centos.org/centos/7/os/x86_64/Packages/vulkan-filesystem-1.1.73.0-1.el7.noarch.rpm state=present
+
 - name: install EPEL
   yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=present
 
