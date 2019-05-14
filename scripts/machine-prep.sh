@@ -1,10 +1,10 @@
 #!/bin/bash
-echo $(date) " - Starting Bastion Prep Script"
+echo $(date) " - Starting Machine Prep Script"
 
 export USERNAME_ORG=$1
 export PASSWORD_ACT_KEY="$2"
 export POOL_ID=$3
-export MINORVERSION=${15}
+#export MINORVERSION=${15}
 
 # Remove RHUI
 rm -f /etc/yum.repos.d/rh-cloud.repo
@@ -65,7 +65,7 @@ echo $(date) " - Base package installation complete"
 
 # Install OpenShift utilities
 echo $(date) " - Installing OpenShift utilities"
-yum -y install openshift-ansible-3.11.${MINORVERSION}
+yum -y install openshift-ansible #-3.11.${MINORVERSION}
 echo $(date) " - OpenShift utilities installation complete"
 
 
@@ -102,23 +102,23 @@ OPTIONS=\"\$OPTIONS --insecure-registry 172.30.0.0/16\"
 # Create thin pool logical volume for Docker
 echo $(date) " - Creating thin pool logical volume for Docker and staring service"
 
-DOCKERVG=$( parted -m /dev/sda print all 2>/dev/null | grep unknown | grep /dev/sd | cut -d':' -f1 )
+#DOCKERVG=$( parted -m /dev/sda print all 2>/dev/null | grep unknown | grep /dev/sd | cut -d':' -f1 )
 
-echo "
+#echo "
 # Adding OpenShift data disk for docker
-DEVS=${DOCKERVG}
-VG=docker-vg
-" >> /etc/sysconfig/docker-storage-setup
+#DEVS=${DOCKERVG}
+#VG=docker-vg
+#" >> /etc/sysconfig/docker-storage-setup
 
 # Running setup for docker storage
-docker-storage-setup
-if [ $? -eq 0 ]
-then
-   echo "Docker thin pool logical volume created successfully"
-else
-   echo "Error creating logical volume for Docker"
-   exit 5
-fi
+#docker-storage-setup
+#if [ $? -eq 0 ]
+#then
+#   echo "Docker thin pool logical volume created successfully"
+#else
+#   echo "Error creating logical volume for Docker"
+#   exit 5
+#fi
 
 # Enable and start Docker services
 
