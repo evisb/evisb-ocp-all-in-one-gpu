@@ -82,7 +82,7 @@ oc create -f pv2.yaml
 oc create -f pv3.yaml
 
 echo $(date) "- Deploy Kubeflow"
-wget https://github.com/kubeflow/kubeflow/releases/download/v0.5.0/kfctl_v0.5.0_linux.tar.gz -O kfctl.tar.gz
+wget https://github.com/kubeflow/kubeflow/releases/download/v0.5.1/kfctl_v0.5.1_linux.tar.gz -O kfctl.tar.gz
 tar -xvf kfctl.tar.gz
 mv -f kfctl /usr/bin/kfctl
 rm -f /root/kf/* #kfctl.tar.gz
