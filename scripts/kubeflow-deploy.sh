@@ -76,6 +76,9 @@ spec:
   persistentVolumeReclaimPolicy: Recycle
 EOF
 
+echo $(date) "- Creating kubeflow project"
+oc new-project kubeflow
+
 echo $(date) "- Creating pv objects in Openshift"
 oc create -f pv1.yaml
 oc create -f pv2.yaml
