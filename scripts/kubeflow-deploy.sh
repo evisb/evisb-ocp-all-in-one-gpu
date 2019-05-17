@@ -36,7 +36,7 @@ spec:
     storage: 10Gi
   accessModes:
   - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
+  persistentVolumeReclaimPolicy: Recycle
   storageClassName: standard-local
   local:
     path: /mnt/kubeflow
@@ -60,7 +60,7 @@ spec:
     storage: 20Gi
   accessModes:
   - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
+  persistentVolumeReclaimPolicy: Recycle
   storageClassName: standard-local
   local:
     path: /mnt/kubeflow
@@ -84,7 +84,7 @@ spec:
     storage: 20Gi
   accessModes:
   - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
+  persistentVolumeReclaimPolicy: Recycle
   storageClassName: standard-local
   local:
     path: /mnt/kubeflow
