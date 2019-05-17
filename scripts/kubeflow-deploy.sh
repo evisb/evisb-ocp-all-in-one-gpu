@@ -102,7 +102,7 @@ echo $(date) "- Creating kubeflow project"
 oc new-project kubeflow
 
 echo $(date) "- Creating storage class and pv objects in Openshift"
-oc create storageclass.yaml
+oc create -f storageclass.yaml
 oc create -f pv1.yaml
 oc create -f pv2.yaml
 oc create -f pv3.yaml
