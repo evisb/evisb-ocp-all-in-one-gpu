@@ -5,81 +5,104 @@ mkdir /root/kf
 export KFAPP=/root/kf
 cd ${KFAPP}
 
-echo $(date) "- Creating nfs share for kubeflow"
-mkdir /srv/nfs/kubeflow
-chown nfsnobody:nfsnobody /srv/nfs/kubeflow/
-chmod -R 777 /srv/nfs/kubeflow/
-echo '"/srv/nfs/kubeflow" *(rw,root_squash)' >> /etc/exports.d/openshift-ansible.exports
-systemctl restart nfs
+#echo $(date) "- Creating nfs share for kubeflow"
+#mkdir /srv/nfs/kubeflow
+#chown nfsnobody:nfsnobody /srv/nfs/kubeflow/
+#chmod -R 777 /srv/nfs/kubeflow/
+#echo '"/srv/nfs/kubeflow" *(rw,root_squash)' >> /etc/exports.d/openshift-ansible.exports
+#systemctl restart nfs
+
+echo $(date) "- Create kubeflow local storage "
+mkdir /mnt/kubeflow
+
+echo $(date) "- Creating storage class for local storage"
+cat > storageclass.yaml <<EOF
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: standard-local
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: Immediate
+EOF
 
 echo $(date) "- Creating yaml files for the necessary pv objects in kubeflow"
 cat > pv1.yaml <<EOF
-kind: PersistentVolume
 apiVersion: v1
+kind: PersistentVolume
 metadata:
-  name: kf1-volume
-  labels:
-    storage: kubeflow
-  annotations:
-  finalizers:
-    - kubernetes.io/pv-protection
+  name: local-pv1
 spec:
   capacity:
     storage: 10Gi
-  nfs:
-    server: ocp.eb.gpu.gr.clus
-    path: /srv/nfs/kubeflow
   accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Recycle
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard-local
+  local:
+    path: /mnt/kubeflow
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ocp.eb.gpu.gr.clus
 EOF
 
 cat > pv2.yaml <<EOF
-kind: PersistentVolume
 apiVersion: v1
+kind: PersistentVolume
 metadata:
-  name: kf2-volume
-  labels:
-    storage: kubeflow
-  annotations:
-  finalizers:
-    - kubernetes.io/pv-protection
+  name: local-pv2
 spec:
   capacity:
     storage: 20Gi
-  nfs:
-    server: ocp.eb.gpu.gr.clus
-    path: /srv/nfs/kubeflow
   accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Recycle
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard-local
+  local:
+    path: /mnt/kubeflow
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ocp.eb.gpu.gr.clus
 EOF
 
 cat > pv3.yaml <<EOF
-kind: PersistentVolume
 apiVersion: v1
+kind: PersistentVolume
 metadata:
-  name: kf3-volume
-  labels:
-    storage: kubeflow
-  annotations:
-  finalizers:
-    - kubernetes.io/pv-protection
+  name: local-pv3
 spec:
   capacity:
     storage: 20Gi
-  nfs:
-    server: ocp.eb.gpu.gr.clus
-    path: /srv/nfs/kubeflow
   accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Recycle
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard-local
+  local:
+    path: /mnt/kubeflow
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ocp.eb.gpu.gr.clus
 EOF
 
 echo $(date) "- Creating kubeflow project"
 oc new-project kubeflow
 
-echo $(date) "- Creating pv objects in Openshift"
+echo $(date) "- Creating storage class and pv objects in Openshift"
+oc create storageclass.yaml
 oc create -f pv1.yaml
 oc create -f pv2.yaml
 oc create -f pv3.yaml
@@ -96,6 +119,11 @@ kfctl apply all -V
 echo $(date) "- Applying correct scc to service accounts in the kubeflow project"
 oc adm policy add-scc-to-group anyuid system:serviceaccounts:kubeflow
 oc adm policy add-scc-to-group privileged system:serviceaccounts:kubeflow
+
+oc adm policy add-scc-to-user anyuid -z ambassador -nkubeflow
+$ oc adm policy add-scc-to-user anyuid -z jupyter -nkubeflow
+$ oc adm policy add-scc-to-user anyuid -z katib-ui -nkubeflow
+$ oc adm policy add-scc-to-user anyuid -z default -nkubeflow
 
 echo $(date) "- Patch vizier-db deployment. Readiness check is logging to mysql with the wrong user"
 oc patch deployment vizier-db -n kubeflow --type=json -p='[{ "op": "replace", "path": "/spec/template/spec/containers/0/readinessProbe", "value": { "exec": { "command": [ "/bin/bash", "-c", "mysql -u root -D $$MYSQL_DATABASE -p$$MYSQL_ROOT_PASSWORD -e 'SELECT 1'" ] }, "failureThreshold": 5, "initialDelaySeconds": 5, "periodSeconds": 2, "successThreshold": 1, "timeoutSeconds": 1} } ]'
