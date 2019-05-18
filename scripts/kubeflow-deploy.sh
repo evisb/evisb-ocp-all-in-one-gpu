@@ -38,7 +38,7 @@ spec:
     storage: 10Gi
   accessModes:
   - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
     path: /mnt/kubeflow
@@ -62,7 +62,7 @@ spec:
     storage: 20Gi
   accessModes:
   - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
     path: /mnt/kubeflow
@@ -86,7 +86,7 @@ spec:
     storage: 20Gi
   accessModes:
   - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
     path: /mnt/kubeflow
@@ -125,14 +125,17 @@ oc adm policy add-scc-to-user anyuid -z katib-ui -n kubeflow
 oc adm policy add-scc-to-user anyuid -z default -n kubeflow
 
 oc adm policy add-scc-to-user anyuid -z jupyter-notebook -n kubeflow
-oc adm policy add-scc-to-user anyuid -z jupyter-hub -n kubeflow
-oc adm policy add-scc-to-user anyuid -z studyjob-controller -n kubeflow
+#oc adm policy add-scc-to-user anyuid -z jupyter-hub -n kubeflow
+#oc adm policy add-scc-to-user anyuid -z studyjob-controller -n kubeflow
 #oc adm policy add-scc-to-user privileged -z argo -n kubeflow
 #oc adm policy add-scc-to-user privileged -z pipeline-runner -n kubeflow
 
 
 echo $(date) "- Patch vizier-db deployment. Readiness check is logging to mysql with the wrong user"
 oc patch deployment vizier-db -n kubeflow --type=json -p='[{ "op": "replace", "path": "/spec/template/spec/containers/0/readinessProbe", "value": { "exec": { "command": [ "/bin/bash", "-c", "mysql -u root -D $$MYSQL_DATABASE -p$$MYSQL_ROOT_PASSWORD -e \"SELECT 1\"" ] }, "failureThreshold": 5, "initialDelaySeconds": 5, "periodSeconds": 2, "successThreshold": 1, "timeoutSeconds": 1} } ]'
+
+echo $(date) "- Add finalizer to clusterrole notebooks-controller"
+oc patch clusterrole notebooks-controller --type=json  -p '[{"op":"add", "path":"/rules/-", "value":{"apiGroups":["kubeflow.org"],"resources":["notebooks/finalizers"],"verbs":["*"]}}]'
 
 echo $(date) "- Create route for Ambassador"
 oc expose service/ambassador -n kubeflow
