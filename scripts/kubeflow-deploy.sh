@@ -20,11 +20,11 @@ cat > storageclass.yaml <<EOF
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: standard-local
+  name: local-storage
   annotations:
     storageclass.kubernetes.io/is-default-class: "true"
 provisioner: kubernetes.io/no-provisioner
-volumeBindingMode: Immediate
+volumeBindingMode: WaitForFirstConsumer
 EOF
 
 echo $(date) "- Creating yaml files for the necessary pv objects in kubeflow"
@@ -38,8 +38,8 @@ spec:
     storage: 10Gi
   accessModes:
   - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Recycle
-  storageClassName: standard-local
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
   local:
     path: /mnt/kubeflow
   nodeAffinity:
@@ -62,8 +62,8 @@ spec:
     storage: 20Gi
   accessModes:
   - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Recycle
-  storageClassName: standard-local
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
   local:
     path: /mnt/kubeflow
   nodeAffinity:
@@ -86,8 +86,8 @@ spec:
     storage: 20Gi
   accessModes:
   - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Recycle
-  storageClassName: standard-local
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
   local:
     path: /mnt/kubeflow
   nodeAffinity:
@@ -113,7 +113,7 @@ echo $(date) "- Deploy Kubeflow"
 wget https://github.com/kubeflow/kubeflow/releases/download/v0.5.1/kfctl_v0.5.1_linux.tar.gz -O kfctl.tar.gz
 tar -xvf kfctl.tar.gz
 mv -f kfctl /usr/bin/kfctl
-rm -f /root/kf/* #kfctl.tar.gz
+rm -f /root/kf/*
 kfctl init ${KFAPP}
 kfctl generate all -V
 kfctl apply all -V
@@ -124,5 +124,15 @@ oc adm policy add-scc-to-user anyuid -z jupyter -n kubeflow
 oc adm policy add-scc-to-user anyuid -z katib-ui -n kubeflow
 oc adm policy add-scc-to-user anyuid -z default -n kubeflow
 
+oc adm policy add-scc-to-user anyuid -z jupyter-notebook -n kubeflow
+oc adm policy add-scc-to-user anyuid -z jupyter-hub -n kubeflow
+oc adm policy add-scc-to-user anyuid -z studyjob-controller -n kubeflow
+#oc adm policy add-scc-to-user privileged -z argo -n kubeflow
+#oc adm policy add-scc-to-user privileged -z pipeline-runner -n kubeflow
+
+
 echo $(date) "- Patch vizier-db deployment. Readiness check is logging to mysql with the wrong user"
 oc patch deployment vizier-db -n kubeflow --type=json -p='[{ "op": "replace", "path": "/spec/template/spec/containers/0/readinessProbe", "value": { "exec": { "command": [ "/bin/bash", "-c", "mysql -u root -D $$MYSQL_DATABASE -p$$MYSQL_ROOT_PASSWORD -e \"SELECT 1\"" ] }, "failureThreshold": 5, "initialDelaySeconds": 5, "periodSeconds": 2, "successThreshold": 1, "timeoutSeconds": 1} } ]'
+
+echo $(date) "- Create route for Ambassador"
+oc expose service/ambassador -n kubeflow
