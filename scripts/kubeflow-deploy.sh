@@ -123,10 +123,11 @@ oc adm policy add-scc-to-user anyuid -z ambassador -n kubeflow
 oc adm policy add-scc-to-user anyuid -z jupyter -n kubeflow
 oc adm policy add-scc-to-user anyuid -z katib-ui -n kubeflow
 oc adm policy add-scc-to-user anyuid -z default -n kubeflow
-
+oc adm policy add-scc-to-user anyuid -z jupyter-hub -n kubeflow
 oc adm policy add-scc-to-user anyuid -z jupyter-notebook -n kubeflow
-#oc adm policy add-scc-to-user anyuid -z jupyter-hub -n kubeflow
-#oc adm policy add-scc-to-user anyuid -z studyjob-controller -n kubeflow
+oc adm policy add-scc-to-user anyuid -z studyjob-controller -n kubeflow
+
+
 #oc adm policy add-scc-to-user privileged -z argo -n kubeflow
 #oc adm policy add-scc-to-user privileged -z pipeline-runner -n kubeflow
 
