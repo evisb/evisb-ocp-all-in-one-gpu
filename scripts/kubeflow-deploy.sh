@@ -119,13 +119,10 @@ kfctl generate all -V
 kfctl apply all -V
 
 echo $(date) "- Applying correct scc to service accounts in the kubeflow project"
-oc adm policy add-scc-to-group anyuid system:serviceaccounts:kubeflow
-oc adm policy add-scc-to-group privileged system:serviceaccounts:kubeflow
-
-oc adm policy add-scc-to-user anyuid -z ambassador -nkubeflow
-$ oc adm policy add-scc-to-user anyuid -z jupyter -nkubeflow
-$ oc adm policy add-scc-to-user anyuid -z katib-ui -nkubeflow
-$ oc adm policy add-scc-to-user anyuid -z default -nkubeflow
+oc adm policy add-scc-to-user anyuid -z ambassador -n kubeflow
+oc adm policy add-scc-to-user anyuid -z jupyter -n kubeflow
+oc adm policy add-scc-to-user anyuid -z katib-ui -n kubeflow
+oc adm policy add-scc-to-user anyuid -z default -n kubeflow
 
 echo $(date) "- Patch vizier-db deployment. Readiness check is logging to mysql with the wrong user"
 oc patch deployment vizier-db -n kubeflow --type=json -p='[{ "op": "replace", "path": "/spec/template/spec/containers/0/readinessProbe", "value": { "exec": { "command": [ "/bin/bash", "-c", "mysql -u root -D $$MYSQL_DATABASE -p$$MYSQL_ROOT_PASSWORD -e \"SELECT 1\"" ] }, "failureThreshold": 5, "initialDelaySeconds": 5, "periodSeconds": 2, "successThreshold": 1, "timeoutSeconds": 1} } ]'
