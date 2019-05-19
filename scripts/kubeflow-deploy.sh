@@ -3,6 +3,7 @@
 echo $(date) "- Creating kf directory to host the deployment artifacts"
 mkdir /root/kf
 export KFAPP=/root/kf
+export HOST=ocp.eb.gpu.gr.clus
 cd ${KFAPP}
 
 #echo $(date) "- Creating nfs share for kubeflow"
@@ -15,8 +16,11 @@ cd ${KFAPP}
 echo $(date) "- Create kubeflow local storage "
 mkdir /mnt/kubeflow
 
+echo $(date) "- Create dir for pv files"
+mkdir /root/pvs
+
 echo $(date) "- Creating storage class for local storage"
-cat > storageclass.yaml <<EOF
+cat << EOF > /root/pvs/storageclass.yaml
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
@@ -27,21 +31,25 @@ provisioner: kubernetes.io/no-provisioner
 volumeBindingMode: WaitForFirstConsumer
 EOF
 
-echo $(date) "- Creating yaml files for the necessary pv objects in kubeflow"
-cat > pv1.yaml <<EOF
+echo $(date) "- Creating yaml files for 25 pv objects of 1Gi in kubeflow"
+export volsize="1Gi"
+for volume in pv-1-{1..25}; \
+do \
+mkdir -p /mnt/kubeflow/${volume} 
+cat << EOF > /root/pvs/${volume}.yaml
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: local-pv1
+  name: ${volume} 
 spec:
   capacity:
-    storage: 10Gi
+    storage: ${volsize} 
   accessModes:
-  - ReadWriteOnce
+  - ReadWriteOnce 
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
-    path: /mnt/kubeflow
+    path: /mnt/kubeflow/${volume} 
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -49,23 +57,30 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - ocp.eb.gpu.gr.clus
+          - ${HOST}
 EOF
+     echo "Created yaml file for ${volume}"; \
+done
 
-cat > pv2.yaml <<EOF
+echo $(date) "- Creating yaml files for 20 pv objects of 2Gi in kubeflow"
+export volsize="2Gi"
+for volume in pv-2-{1..20}; \
+do \
+mkdir -p /mnt/kubeflow/${volume} 
+cat << EOF > /root/pvs/${volume}.yaml
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: local-pv2
+  name: ${volume} 
 spec:
   capacity:
-    storage: 20Gi
+    storage: ${volsize} 
   accessModes:
-  - ReadWriteOnce
+  - ReadWriteOnce 
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
-    path: /mnt/kubeflow
+    path: /mnt/kubeflow/${volume} 
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -73,23 +88,30 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - ocp.eb.gpu.gr.clus
+          - ${HOST}
 EOF
+     echo "Created yaml file for ${volume}"; \
+done
 
-cat > pv3.yaml <<EOF
+echo $(date) "- Creating yaml files for 10 pv objects of 5Gi in kubeflow"
+export volsize="5Gi"
+for volume in pv-5-{1..10}; \
+do \
+mkdir -p /mnt/kubeflow/${volume} 
+cat << EOF > /root/pvs/${volume}.yaml
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: local-pv3
+  name: ${volume} 
 spec:
   capacity:
-    storage: 20Gi
+    storage: ${volsize} 
   accessModes:
-  - ReadWriteOnce
+  - ReadWriteOnce 
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
-    path: /mnt/kubeflow
+    path: /mnt/kubeflow/${volume} 
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -97,17 +119,81 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - ocp.eb.gpu.gr.clus
+          - ${HOST}
 EOF
+     echo "Created yaml file for ${volume}"; \
+done
+
+echo $(date) "- Creating yaml files for 10 pv objects of 10Gi in kubeflow"
+export volsize="10Gi"
+for volume in pv-10-{1..10}; \
+do \
+mkdir -p /mnt/kubeflow/${volume} 
+cat << EOF > /root/pvs/${volume}.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ${volume} 
+spec:
+  capacity:
+    storage: ${volsize} 
+  accessModes:
+  - ReadWriteOnce 
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/kubeflow/${volume} 
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ${HOST}
+EOF
+     echo "Created yaml file for ${volume}"; \
+done
+
+echo $(date) "- Creating yaml files for 5 pv objects of 20Gi in kubeflow"
+export volsize="20Gi"
+for volume in pv-10-{1..5}; \
+do \
+mkdir -p /mnt/kubeflow/${volume} 
+cat << EOF > /root/pvs/${volume}.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ${volume} 
+spec:
+  capacity:
+    storage: ${volsize} 
+  accessModes:
+  - ReadWriteOnce 
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/kubeflow/${volume} 
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ${HOST}
+EOF
+     echo "Created yaml file for ${volume}"; \
+done
 
 echo $(date) "- Creating kubeflow project"
 oc new-project kubeflow
 
 echo $(date) "- Creating storage class and pv objects in Openshift"
-oc create -f storageclass.yaml
-oc create -f pv1.yaml
-oc create -f pv2.yaml
-oc create -f pv3.yaml
+for filename in /root/pvs/*; \
+do \
+oc create -f $filename
+done
 
 echo $(date) "- Deploy Kubeflow"
 wget https://github.com/kubeflow/kubeflow/releases/download/v0.5.1/kfctl_v0.5.1_linux.tar.gz -O kfctl.tar.gz
@@ -140,3 +226,29 @@ oc patch clusterrole notebooks-controller --type=json  -p '[{"op":"add", "path":
 
 echo $(date) "- Create route for Ambassador"
 oc expose service/ambassador -n kubeflow
+
+echo $(date) "- Create scc for hostpath adhoc storage"
+cat > hostpath-scc.yaml <<EOF
+kind: SecurityContextConstraints
+apiVersion: v1
+metadata:
+  name: hostpath
+allowPrivilegedContainer: true
+runAsUser:
+  type: RunAsAny
+seLinuxContext:
+  type: RunAsAny
+fsGroup:
+  type: RunAsAny
+supplementalGroups:
+  type: RunAsAny
+users:
+groups:
+EOF
+oc create -f hostpath-scc.yaml
+
+echo $(date) "- Set the allowHostDirVolumePlugin parameter to true for the hostpath scc"
+oc patch scc hostpath -p '{"allowHostDirVolumePlugin": true}'
+
+echo $(date) "- Grant access to this SCC to all users"
+oc adm policy add-scc-to-group hostpath system:authenticated
