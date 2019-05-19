@@ -10,7 +10,7 @@
   yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=present
 
 - name: install NVIDIA repo
-  yum: name=https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-repo-rhel7-10.1.105-1.x86_64.rpm state=present
+  yum: name=https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-repo-rhel7-10.0.130-1.x86_64.rpm state=present
 
 - name: install NVIDIA drivers
   yum:  name={{item}} state=present
