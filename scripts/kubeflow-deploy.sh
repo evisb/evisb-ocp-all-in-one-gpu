@@ -157,7 +157,7 @@ done
 
 echo $(date) "- Creating yaml files for 5 pv objects of 20Gi in kubeflow"
 export volsize="20Gi"
-for volume in pv-10-{1..5}; \
+for volume in pv-20-{1..5}; \
 do \
 mkdir -p /mnt/kubeflow/${volume} 
 cat << EOF > /root/pvs/${volume}.yaml
