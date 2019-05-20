@@ -73,6 +73,7 @@ openshift_examples_modify_imagestreams=false
 # NOTE: accept insecure registries and registries with self-signed certs
 # setup for lab environment
 openshift_docker_hosted_registry_insecure=true
+openshift_docker_insecure_registries=docker-registry.default.svc,docker-registry.default.svc.cluster.local,docker-registry.default.svc:5000,docker-registry.default.svc.cluster.local:5000
 
 ###########################################################################
 ### OpenShift Master Vars

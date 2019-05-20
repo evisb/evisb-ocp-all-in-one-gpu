@@ -213,6 +213,8 @@ oc adm policy add-scc-to-user anyuid -z jupyter-hub -n kubeflow
 oc adm policy add-scc-to-user anyuid -z jupyter-notebook -n kubeflow
 oc adm policy add-scc-to-user anyuid -z studyjob-controller -n kubeflow
 
+echo $(date)"- Adjust the privileges of the tf-job-operator service account for TFJobs to run."
+oc adm policy add-role-to-user cluster-admin -z tf-job-operator
 
 #oc adm policy add-scc-to-user privileged -z argo -n kubeflow
 #oc adm policy add-scc-to-user privileged -z pipeline-runner -n kubeflow
