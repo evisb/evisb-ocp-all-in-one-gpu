@@ -4,7 +4,7 @@
   register: st_project_status
 
 - name: create smoketest project if not present
-  command: oc new-project nvidia
+  command: oc new-project smoketest
   when: st_project_status is failed
 
 - name: check for smoketest service account
