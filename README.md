@@ -44,3 +44,6 @@ This demonstrates that the process in the pod has access to the GPU hardware.  I
 ```
 oc rsh gpu-pod /usr/local/cuda-10.1/samples/1_Utilities/deviceQuery/deviceQuery
 ```
+
+### Other scripts
+There is an additional script to prep the machine before OCP deployment, a scripts to perform a full Kubeflow deployment and a template for Tensorflow with GPU support.
