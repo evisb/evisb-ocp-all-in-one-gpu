@@ -35,7 +35,12 @@ You should see nvidia.com/gpu=N where N is the number of GPUs in the system.
 
 ### gpu-pod
 To test your GPU there is also a basic Dockerfile that is based on the NVIDIA CUDA 10.0 CentOS7 image and includes the deviceQuery binary.
-Run the deviceQuery command after having run the deployment script firts. This demonstrates that the process in the pod has access to the GPU hardware.  If it did not, the result at the bottom indicates FAIL.
+Run the deviceQuery command after having run the deployment script first.
+```
+ansible-playbook -i ./inventory/inventory-oia -e hosts_to_apply="fast_nodes" ./playbooks/gpu-pod.yaml
+```
+
+This demonstrates that the process in the pod has access to the GPU hardware.  If it does not, it results in a FAIL status.
 ```
 oc rsh gpu-pod /usr/local/cuda-9.1/samples/1_Utilities/deviceQuery/deviceQuery
 ```
