@@ -9,7 +9,6 @@ cd ${KFAPP}
 #echo $(date) "- Creating nfs share for kubeflow"
 #mkdir /srv/nfs/kubeflow
 #chown nfsnobody:nfsnobody /srv/nfs/kubeflow/
-#chmod -R 777 /srv/nfs/kubeflow/
 #echo '"/srv/nfs/kubeflow" *(rw,root_squash)' >> /etc/exports.d/openshift-ansible.exports
 #systemctl restart nfs
 
