@@ -42,5 +42,5 @@ ansible-playbook -i ./inventory/inventory-oia -e hosts_to_apply="fast_nodes" ./p
 
 This demonstrates that the process in the pod has access to the GPU hardware.  If it does not, it results in a FAIL status.
 ```
-oc rsh gpu-pod /usr/local/cuda-9.1/samples/1_Utilities/deviceQuery/deviceQuery
+oc rsh gpu-pod /usr/local/cuda-10.1/samples/1_Utilities/deviceQuery/deviceQuery
 ```
