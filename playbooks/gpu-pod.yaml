@@ -1,5 +1,5 @@
 ---
-- name: launch a pod that consumes a single GPU to perform a smoketest
+- name: launch a pod that consumes a single GPU to perform a smoke test
   hosts: "{{ hosts_to_apply }}"
   user: root
   roles:
