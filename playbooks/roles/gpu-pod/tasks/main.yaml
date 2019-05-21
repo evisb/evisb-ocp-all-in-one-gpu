@@ -16,12 +16,5 @@
   command: oc create serviceaccount smoketest -n smoketest
   when: st_out is failed
 
-- name: copy artifacts up
-  copy:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-  with_items:
-   - { src: 'gpu-pod.yaml',dest: '/tmp/gpu-pod.yaml' }
-
 - name: create a pod to smoketest the interaction with GPU 
-  shell: oc create -f /tmp/gpu-pod.yaml
+  shell: oc create -f ../gpu-pod.yaml
