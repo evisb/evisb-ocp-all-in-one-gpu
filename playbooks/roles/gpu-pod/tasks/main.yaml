@@ -1,20 +1,20 @@
-- name: check for nvidia project
-  command: oc get project nvidia
+- name: check for smoketest project
+  command: oc get project smoketest
   ignore_errors: true
-  register: nvidia_project_status
+  register: st_project_status
 
-- name: create nvidia project when it didn't already exist
-  command: oc adm new-project nvidia
-  when: nvidia_project_status is failed
+- name: create smoketest project if not present
+  command: oc new-project nvidia
+  when: st_project_status is failed
 
-- name: check for nvidia device plugin service account
-  command: oc get serviceaccount nvidia-deviceplugin -n nvidia
-  register: deviceplugin_out
+- name: check for smoketest service account
+  command: oc get serviceaccount smoketest -n smoketest
+  register: st_out
   ignore_errors: true
 
-- name: create serviceaccount for nvidia deviceplugin
-  command: oc create serviceaccount nvidia-deviceplugin -n nvidia
-  when: deviceplugin_out is failed
+- name: create smoketest serviceaccount if not present
+  command: oc create serviceaccount smoketest -n smoketest
+  when: st_out is failed
 
 - name: copy artifacts up
   copy:
@@ -22,25 +22,6 @@
     dest: "{{ item.dest }}"
   with_items:
    - { src: 'gpu-pod.yaml',dest: '/tmp/gpu-pod.yaml' }
-   - { src: 'caffe2.yaml',dest: '/tmp/caffe2.yaml' }
-   - { src: 'get_url.sh',dest: '/tmp/get_url.sh' }
 
-# this pod consumes a single gpu and runs a smoketest.
-#- name: create a pod that consumes a GPU and tolerates a fastnode taint
-#  shell: oc create -f /tmp/gpu-pod.yaml
-
-- name: pull caffe2 image
-  shell: docker pull caffe2ai/caffe2
-  when: inventory_hostname in groups['fast_nodes']
-
-- name: create caffe2 demo pod
-  shell: oc create -f /tmp/caffe2.yaml
-
-- name: wait for caffe2 service to show up
-  shell: sleep 15
-
-- name: create a route for the caffe2 jupyter service
-  shell: oc expose -n nvidia service/caffe2
-
-- name: wait for jupyter service to become accessible
-  shell: sleep 15
+- name: create a pod to smoketest the interaction with GPU 
+  shell: oc create -f /tmp/gpu-pod.yaml
