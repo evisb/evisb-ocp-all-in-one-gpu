@@ -9,7 +9,7 @@ spec:
   serviceAccountName: smoketest
   containers:
   - name: nvidia-cuda-10-1-centos7-devel
-    image: quay.io/don7exc/ocp-gpu-pod:latest
+    image: quay.io/don7exc/ocp-gpu:latest
     env:
       - name: NVIDIA_VISIBLE_DEVICES
         value: all
