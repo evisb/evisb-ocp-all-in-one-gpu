@@ -1,0 +1,213 @@
+{
+    "kind": "Template",
+    "apiVersion": "template.openshift.io/v1",
+    "metadata": {
+        "name": "notebook-workspace",
+        "annotations": {
+            "openshift.io/display-name": "Tensorflow Jupyter Notebook Workspace",
+            "description": "Template for deploying Jupyter Notebook images with persistent storage and webdav filesystem access.",
+            "iconClass": "icon-openshift",
+            "tags": "python,jupyter,openshift"
+        }
+    },
+    "parameters": [
+        {
+            "name": "APPLICATION_NAME",
+            "value": "custom-notebook",
+            "required": true
+        },
+        {
+            "name": "NOTEBOOK_IMAGE",
+            "value": "tensorflow-gpu-py3-jupyter:latest",
+            "required": true
+        },
+        {
+            "name": "NOTEBOOK_PASSWORD",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "NOTEBOOK_MEMORY",
+            "value": "2Gi",
+            "required": true
+        },
+        {
+            "name": "VOLUME_SIZE",
+            "value": "10Gi",
+            "required": true
+        },
+        {
+            "name": "GPU_CORES",
+            "value": "1",
+            "required": true
+        }
+    ],
+    "objects": [
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "apps.openshift.io/v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "triggers": [
+                    {
+                        "type": "ConfigChange"
+                    },
+                    {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "setup-volume",
+                                "notebook"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "${NOTEBOOK_IMAGE}"
+                            }
+                        }
+                    }
+                ],
+                "replicas": 1,
+                "selector": {
+                    "app": "${APPLICATION_NAME}",
+                    "deploymentconfig": "${APPLICATION_NAME}"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "${APPLICATION_NAME}",
+                            "deploymentconfig": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "volumes": [
+                            {
+                                "name": "data",
+                                "persistentVolumeClaim": {
+                                    "claimName": "${APPLICATION_NAME}-data"
+                                }
+                            }
+                        ],
+                        "containers": [
+                            {
+                                "name": "notebook",
+                                "image": "${NOTEBOOK_IMAGE}",
+                                "ports": [
+                                    {
+                                        "containerPort": 8888,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {
+                                    "limits": {
+                                        "memory": "${NOTEBOOK_MEMORY}",
+                                        "nvidia.com/gpu": "${GPU_CORES}"
+                                    }
+                                },
+                                "volumeMounts": [
+                                    {
+                                        "name": "data",
+                                        "mountPath": "/opt/app-root",
+                                        "subPath": "app-root"
+                                    }
+                                ],
+                                "env": [
+                                    {
+                                        "name": "JUPYTER_NOTEBOOK_PASSWORD",
+                                        "value": "${NOTEBOOK_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "JUPYTER_ENABLE_WEBDAV",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "JUPYTER_ENABLE_LAB",
+                                        "value": "true"
+                                    }
+                                ]
+                            }
+                        ],
+                        "automountServiceAccountToken": false
+                    }
+                }
+            }
+        },
+        {
+            "kind": "PersistentVolumeClaim",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}-data",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "accessModes": [
+                    "ReadWriteOnce"
+                ],
+                "resources": {
+                    "requests": {
+                        "storage": "${VOLUME_SIZE}"
+                    }
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "8888-tcp",
+                        "protocol": "TCP",
+                        "port": 8888,
+                        "targetPort": 8888
+                    }
+                ],
+                "selector": {
+                    "app": "${APPLICATION_NAME}",
+                    "deploymentconfig": "${APPLICATION_NAME}"
+                }
+            }
+        },
+        {
+            "kind": "Route",
+            "apiVersion": "route.openshift.io/v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "host": "",
+                "to": {
+                    "kind": "Service",
+                    "name": "${APPLICATION_NAME}",
+                    "weight": 100
+                },
+                "port": {
+                    "targetPort": "8888-tcp"
+                },
+                "tls": {
+                    "termination": "edge",
+                    "insecureEdgeTerminationPolicy": "Redirect"
+                }
+            }
+        }
+    ]
+}
