@@ -25,26 +25,6 @@ After deploying, run:
 ```oc describe node x.x.x.x | grep -A15 Capacity```.  You should see nvidia.com/gpu=N where N is the number of GPUs in the system.
 
 ### gpu-pod
-This role will create a new pod that leverages Taints and Tolerations to run on the fastnode pool.  It consumes a GPU.  The pod sleeps indefinitely.  To test your GPU pod:
-Also included is a basic Dockerfile that is based on the NVIDIA CUDA 10.0 CentOS7 image and includes the deviceQuery binary.
-
-Run the deviceQuery command.  This demonstrates that the process in the pod has access to the GPU hardware.  If it did not, the Result at the bottom would indicate FAIL.
-```
-# oc rsh gpu-pod /usr/local/cuda-9.1/samples/1_Utilities/deviceQuery/deviceQuery
-
-```
-
-The gpu-pod role also includes a caffe2 Multi-GPU jupyter notebook demo.  Deploy the caffe2 environment like so:
-
-```ansible-playbook -i inventory/inv playbooks/gpu-pod.yaml```
-
-To access the jupyter webserver run the ```get_url.sh`` script on the master.
-
-```
-playbooks/gpu-pod/get_url.sh
-```
-
-get_url.sh will output a route and token.
-
-Use the token to authenticate to route:
-http://[route]/notebooks/caffe2/caffe2/python/tutorials/Multi-GPU_Training.ipynb?token=[token]
+To test your GPU there is also a basic Dockerfile that is based on the NVIDIA CUDA 10.0 CentOS7 image and includes the deviceQuery binary.
+Run the deviceQuery command after having run the deployment script firts. This demonstrates that the process in the pod has access to the GPU hardware.  If it did not, the result at the bottom indicates FAIL.
+```oc rsh gpu-pod /usr/local/cuda-9.1/samples/1_Utilities/deviceQuery/deviceQuery```
